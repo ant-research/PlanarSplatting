@@ -8,5 +8,5 @@
 	path = submodules/diff-rect-rasterization
 	url = https://github.com/ant-research/diff-rect-rasterization.git
 [submodule "submodules/quaternion-utils/glm"]
-	path = submodules/quaternion-utils/glm
+	path = submodules/quaternion-utils/third_party/glm
 	url = https://github.com/g-truc/glm.git
