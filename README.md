@@ -11,7 +11,8 @@
 
 Official implementation of **PlanarSplatting** (CVPR 2025 Hightlight) 
 --
-An **ultrafast** per-scene optimization method built upon planar primitives for indoor planar surface reconstruction.
+- An **ultrafast** method for structured indoor surface reconstruction.
+- We support **pose-free** multi-view inputs based on VGG-T.
 
 <div align="center">
   <img src="./assets/pipeline.png" alt="teaser" width="800" />
@@ -24,7 +25,7 @@ We present PlanarSplatting, an ultra-fast and accurate surface reconstruction ap
 ## ⚙️ Installation
 ### 1. Clone PlanarSplatting
 ```
-git clone url/to/planarspaltting --recursive 
+git clone https://github.com/ant-research/PlanarSplatting.git --recursive 
 ```
 ### 2. Create the enviroment
 ```
