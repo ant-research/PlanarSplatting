@@ -124,7 +124,7 @@ If you find our work useful in your research please consider citing our paper:
 ```
 
 ## 🙏 Acknowledgement
-PlanarSplatting is constructed on the outstanding open-source projects. We are extremely grateful for the contributions of these projects and their communities, whose hard work has greatly propelled the development of the field and enabled our work to be realized.
+PlanarSplatting is built on the top of several outstanding open-source projects. We are extremely grateful for the contributions of these projects and their communities, whose hard work has greatly propelled the development of the field and enabled our work to be realized.
 
 - [3DGS](https://github.com/graphdeco-inria/gaussian-splatting)
 - [2DGS](https://github.com/hbb1/2d-gaussian-splatting)
