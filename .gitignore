@@ -1,0 +1,13 @@
+data/
+exps*/
+checkpoints/
+*.pyc
+.vscode
+**__pycache__**
+**/tmp
+**tmp_build**
+**test_cuda**
+*.egg-info/
+*build/
+tmp*/
+planarSplat_ExpRes/

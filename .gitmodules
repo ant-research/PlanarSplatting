@@ -1,0 +1,9 @@
+[submodule "submodules/vggt"]
+	path = submodules/vggt
+	url = https://github.com/facebookresearch/vggt.git
+[submodule "submodules/Metric3D"]
+	path = submodules/Metric3D
+	url = https://github.com/cherubicXN/Metric3D
+[submodule "submodules/diff-rect-rasterization"]
+	path = submodules/diff-rect-rasterization
+	url = git@code.alipay.com:tanbin.tan/diff-rect-rasterization.git
