@@ -6,4 +6,4 @@
 	url = https://github.com/cherubicXN/Metric3D
 [submodule "submodules/diff-rect-rasterization"]
 	path = submodules/diff-rect-rasterization
-	url = git@code.alipay.com:tanbin.tan/diff-rect-rasterization.git
+	url = https://github.com/ant-research/diff-rect-rasterization.git
