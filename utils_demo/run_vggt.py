@@ -27,11 +27,11 @@ def run_vggt(img_dir, out_path, ckpt_path='checkpoints/model.pt', step=1, depth_
 
     # Initialize the model and load the pretrained weights.
     # This will automatically download the model weights the first time it's run, which may take a while.
-    # model = VGGT.from_pretrained("facebook/VGGT-1B").to(device)
-    model = VGGT()
-    local_ckpt_path = ckpt_path
-    model.load_state_dict(torch.load(local_ckpt_path))
-    model = model.to(device)
+    model = VGGT.from_pretrained("facebook/VGGT-1B").to(device)
+    # model = VGGT()
+    # local_ckpt_path = ckpt_path
+    # model.load_state_dict(torch.load(local_ckpt_path))
+    # model = model.to(device)
 
     image_paths_list = []
     color_images_list = []
