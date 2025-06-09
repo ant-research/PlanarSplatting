@@ -8,7 +8,6 @@ from pyhocon import ConfigFactory
 from pyhocon import ConfigTree
 from utils_demo.run_vggt import run_vggt
 from utils_demo.run_metric3d import extract_mono_geo_demo
-from utils_demo.run_planarSplatting import run_planarSplatting
 from utils.misc_util import get_class
 import shutil
 from gradio_rerun import Rerun
