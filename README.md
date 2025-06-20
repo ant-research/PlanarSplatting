@@ -86,7 +86,7 @@ python scannetv2_sample_rgb_intrinsic_pose.py \
 ```
 
 ### 3. Run one one scene
-We follow the evaluation methodology from [AirPlanes](https://github.com/nianticlabs/airplanes) on the ScanNetV2 dataset. For more details, please refer to the same [AirPlanes](https://github.com/nianticlabs/airplanes) repository.
+We follow the evaluation methodology from [AirPlanes](https://github.com/nianticlabs/airplanes) on the ScanNetV2 dataset. For more details, please refer to the [AirPlanes](https://github.com/nianticlabs/airplanes) repository.
 ```shell
 cd planarsplat
 python run/runner.py  \
