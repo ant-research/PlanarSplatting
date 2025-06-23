@@ -85,7 +85,7 @@ python scannetv2_sample_rgb_intrinsic_pose.py \
     --scene_id scene0488_00
 ```
 
-### 3. Run one one scene
+### 3. Run on one scene
 We follow the evaluation methodology from [AirPlanes](https://github.com/nianticlabs/airplanes) on the ScanNetV2 dataset. For more details, please refer to the [AirPlanes](https://github.com/nianticlabs/airplanes) repository.
 ```shell
 cd planarsplat
@@ -112,6 +112,42 @@ python run/runner.py  \
 </details>
 <br>
 
+## 🧪 Run on the ScanNet++ scenes
+### 1. Download ScanNet++
+Please follow instructions reported in [ScanNet++](https://kaldir.vc.in.tum.de/scannetpp/) to download and extract ScanNet++ scenes. The extacted data format should be like:
+
+    data/ScanNet++
+        45b0dac5e3/
+            iphone/
+            scans/
+        16c9bd2e1e/
+        ....
+
+### 2. Process scenes for PlanarSplatting
+``` shell
+cd planarsplat/data_process/scannetpp
+
+python scannetpp_prepare_metadata.py \
+    --data_path ../../../data/ScanNet++ \
+    --out_root_path ../../../data/ScanNetPP/scans \
+    --scene_id 45b0dac5e3
+
+python scannetpp_sample_rgb_intrinsic_pose.py \
+    --data_path ../../../data/ScanNetPP/ \
+    --out_path ../../../data/ScanNetPP/processed_scans/ \
+    --scene_id 45b0dac5e3
+```
+
+### 3. Run on one scene
+```shell
+cd planarsplat
+python run/runner.py  \
+    --base_conf confs/base_conf_planarSplatCuda.conf \
+    --conf confs/scannetpp_train.conf \
+    --gpu 0 \
+    --scan_id 45b0dac5e3
+```
+
 ## 📜 Citation
 If you find our work useful in your research please consider citing our paper:
 ```
@@ -132,3 +168,5 @@ PlanarSplatting is built on the top of several outstanding open-source projects.
 - [VGGT](https://github.com/facebookresearch/vggt)
 - [Metric3D v2](https://github.com/YvanYin/Metric3D/tree/main)
 - [Omnidata](https://github.com/EPFL-VILAB/omnidata)
+- [MoGe](https://github.com/microsoft/MoGe)
+

@@ -28,13 +28,12 @@ def merge_plane(
         fc_voxel_size: float=0.05,
         find_fc_normal_angle_thresh: float=25,
         fc_normal_angle_thresh: float=25,
-        fc_dist_thresh: float=0.2
+        fc_dist_thresh: float=0.2,
+        min_pts_num: int=25,
         ):
     torch.use_deterministic_algorithms(False)
     pose_cfg = net.planarSplat.pose_cfg
-    # scene_scale = pose_cfg.scale
-    # scene_offset = pose_cfg.offset
-    min_pts_num = (0.1/space_resolution)**2
+    min_pts_num = max((0.1/space_resolution)**2, min_pts_num)
 
     ## get parameters of 3D plane primitives
     with torch.no_grad():

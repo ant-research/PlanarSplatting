@@ -168,7 +168,9 @@ class PlanarSplatTrainRunner():
 
     def merger(self, save_mesh=True):
         logger.info("Merging 3D planar primitives...")
-        output_dir = self.expdir
+        output_dir = self.conf.get_string('train.rec_folder_name', default='')
+        if len(output_dir) == 0:
+            output_dir = self.expdir
         self.net.eval()
         save_root = os.path.join(output_dir, f'{self.scan_id}')
         os.makedirs(save_root, exist_ok=True)
@@ -185,16 +187,25 @@ class PlanarSplatTrainRunner():
             voxel_length=0.02, 
             sdf_trunc=0.08)
         
-        _, plane_ins_id_new = merge_plane(
-            self.net, 
-            coarse_mesh, 
-            plane_ins_id=None,
-            **self.conf.get_config('merge_coarse'))
-        planarSplat_eval_mesh, plane_ins_id_new = merge_plane(
-            self.net, 
-            coarse_mesh, 
-            plane_ins_id=plane_ins_id_new,
-            **self.conf.get_config('merge_fine'))
+        merge_config_coarse = self.conf.get_config('merge_coarse', default=None)
+        merge_config_fine = self.conf.get_config('merge_fine', default=None)
+        if merge_config_coarse is not None:
+            logger.info(f'mergeing (coarse)...')
+            planarSplat_eval_mesh, plane_ins_id_new = merge_plane(
+                self.net, 
+                coarse_mesh, 
+                plane_ins_id=None,
+                **merge_config_coarse)
+            if merge_config_fine is not None:
+                logger.info(f'mergeing (fine)...')
+                planarSplat_eval_mesh, plane_ins_id_new = merge_plane(
+                    self.net, 
+                    coarse_mesh, 
+                    plane_ins_id=plane_ins_id_new,
+                    **merge_config_fine)
+        else:
+            raise ValueError("No merge configuration found!")
+        
         if save_mesh:
             save_path = os.path.join(save_root, f"{self.scan_id}_planar_mesh.ply")
             logger.info(f'saving final planar mesh to {save_path}')

@@ -7,10 +7,13 @@ from tqdm import tqdm
 
 from utils.model_util import get_K_Rt_from_P
 from utils.graphics_utils import focal2fov, getProjectionMatrix
+from utils.mesh_util import render_depth
 import math
 from loguru import logger
 from monocues import MonoCuesPredictor
 from typing import NamedTuple, List, Dict
+import open3d as o3d
+import trimesh
 
 class CameraInfo(NamedTuple):
     uid: int
@@ -67,6 +70,8 @@ class SceneDataset:
         scene_bounding_sphere: float = 5.0,
         debug_num: int = -1,
         debug_start_idx: int = -1,
+        downsample_step: int = 1,
+        pre_align: bool = False,
         **kwargs,
     ):
         self.dataset_name = dataset_name
@@ -161,6 +166,30 @@ class SceneDataset:
                 self.intrinsics_all = self.intrinsics_all[:debug_num]
                 self.poses_all = self.poses_all[:debug_num]
             self.n_images = len(image_paths)
+        
+        # downsample data
+        image_paths = image_paths[::downsample_step]
+        rgbs = rgbs[::downsample_step]
+        mono_depths = mono_depths[::downsample_step]
+        mono_normals = mono_normals[::downsample_step]
+        self.intrinsics_all = self.intrinsics_all[::downsample_step]
+        self.poses_all = self.poses_all[::downsample_step]
+        self.n_images = len(image_paths)
+
+        # pre-align
+        if pre_align:
+            mesh = o3d.io.read_triangle_mesh(self.mono_mesh_dest)
+            mesh = trimesh.load_mesh(self.mono_mesh_dest)
+            rendered_depths = render_depth(mesh, [pose.cpu().numpy() for pose in self.poses_all], [intrinsic.cpu().numpy()[:3, :3] for intrinsic in self.intrinsics_all], H=img_res[0], W=img_res[1])
+            rendered_depths = [torch.from_numpy(rd).reshape(-1).float() for rd in rendered_depths]
+            from utils.align import align_depth_scale
+            for i in tqdm(range(len(mono_depths)), desc='aligning depth...'):
+                md = mono_depths[i].cuda()
+                rd = rendered_depths[i].cuda()
+                weight = ((md - rd).abs() <= 0.5) & (rd > 0.05)
+                d_scale = align_depth_scale(md.reshape(1, -1), rd.reshape(1, -1), weight=weight.reshape(1, -1).float())
+                md = md * d_scale.item()
+                mono_depths[i] = md
         
         # get cam parameters for rasterization
         self.raster_cam_w2c_list, self.raster_cam_proj_list, self.raster_cam_fullproj_list, self.raster_cam_center_list, self.raster_cam_FovX_list, self.raster_cam_FovY_list, self.raster_img_center_list = self.get_raster_cameras(

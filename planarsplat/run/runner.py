@@ -38,7 +38,7 @@ if __name__ == '__main__':
     exps_folder_name = cfg.get_string('train.exps_folder_name', default='exps_result')
 
     if args.run_task == 'train':
-        fix_seeds()
+        fix_seeds(use_deterministic_algorithms=False)
         runner = get_class(cfg.get_string('train.train_runner_class'))(
                                     conf=cfg,
                                     batch_size=1,
