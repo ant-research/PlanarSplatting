@@ -9,9 +9,11 @@ import open3d as o3d
 from utils.model_util import get_K_Rt_from_P
 from utils.mesh_util import refuse_mesh
 from utils.graphics_utils import focal2fov, getProjectionMatrix
+from utils.mesh_util import render_depth
 import math
 from loguru import logger
 from typing import NamedTuple, List, Dict
+import trimesh
 
 class CameraInfo(NamedTuple):
     uid: int
@@ -63,6 +65,9 @@ class SceneDatasetDemo:
         dataset_name: str = 'demo',
         scan_id: str = 'example',
         scene_bounding_sphere: float = 5.0,
+        pre_align: bool = False,
+        voxel_length: float=0.05,
+        sdf_trunc: float=0.08,
         **kwargs,
     ):
         self.dataset_name = dataset_name
@@ -104,6 +109,34 @@ class SceneDatasetDemo:
         assert mono_normals.shape[2] == img_res[1]
         mono_normals = mono_normals.reshape(self.n_images, -1, 3)  # n, hw, 3
 
+
+        mesh = refuse_mesh(
+            [x.cpu().squeeze().reshape(img_res[0], img_res[1]).numpy() for x in mono_depths],
+            [x.cpu().numpy() for x in self.poses_all],
+            [x.cpu().numpy() for x in self.intrinsics_all],
+            img_res[0],
+            img_res[1],
+            voxel_length=voxel_length,
+            sdf_trunc=sdf_trunc)
+        absolute_img_path = os.path.abspath(image_paths[0])
+        current_dir = os.path.dirname(absolute_img_path)
+        parent_dir = os.path.dirname(current_dir)
+        self.mono_mesh_dest = os.path.join(parent_dir, 'mono_mesh.ply')
+        o3d.io.write_triangle_mesh(self.mono_mesh_dest, mesh)     
+        if pre_align:
+            mesh = trimesh.load_mesh(self.mono_mesh_dest)
+            rendered_depths = render_depth(mesh, [pose.cpu().numpy() for pose in self.poses_all], [intrinsic.cpu().numpy()[:3, :3] for intrinsic in self.intrinsics_all], H=img_res[0], W=img_res[1])
+            rendered_depths = [torch.from_numpy(rd).reshape(-1).float() for rd in rendered_depths]
+            from utils.align import align_depth_scale
+            for i in tqdm(range(len(mono_depths)), desc='aligning depth...'):
+                md = mono_depths[i].cuda()
+                rd = rendered_depths[i].cuda()
+                weight = ((md - rd).abs() <= 0.5) & (rd > 0.05)
+                d_scale = align_depth_scale(md.reshape(1, -1), rd.reshape(1, -1), weight=weight.reshape(1, -1).float())
+                if d_scale > 0:
+                    md = md * d_scale.item()
+                mono_depths[i] = md
+
         # get cam parameters for rasterization
         self.raster_cam_w2c_list, self.raster_cam_proj_list, self.raster_cam_fullproj_list, self.raster_cam_center_list, self.raster_cam_FovX_list, self.raster_cam_FovY_list, self.raster_img_center_list = self.get_raster_cameras(
             self.intrinsics_all, self.poses_all, img_res[0], img_res[1])
@@ -138,20 +171,7 @@ class SceneDatasetDemo:
             }
             self.view_info_list.append(ViewInfo(cam_info, gt_info))      
 
-        mesh = refuse_mesh(
-            [x.cpu().squeeze().reshape(img_res[0], img_res[1]).numpy() for x in mono_depths],
-            [x.cpu().numpy() for x in self.poses_all],
-            [x.cpu().numpy() for x in self.intrinsics_all],
-            img_res[0],
-            img_res[1],
-            0.05,
-            0.08)
-        
-        absolute_img_path = os.path.abspath(image_paths[0])
-        current_dir = os.path.dirname(absolute_img_path)
-        parent_dir = os.path.dirname(current_dir)
-        self.mono_mesh_dest = os.path.join(parent_dir, 'mono_mesh.ply')
-        o3d.io.write_triangle_mesh(self.mono_mesh_dest, mesh)         
+            
 
         logger.info('data loader finished')
     

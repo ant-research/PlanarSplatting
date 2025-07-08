@@ -58,6 +58,11 @@ Alternatively, you can also run PlanarSpaltting without a GUI as follows:
 python run_demo.py --data_path path/to/images
 ```
 
+## 🧪 Run on COLMAP data
+```shell
+python run_demo_colmap.py -d path/to/colmap/data
+```
+
 ## 🧪 Run on the ScanNetV2 scenes
 ### 1. Download ScanNetv2
 Please follow instructions reported in [SimpleRecon](https://github.com/nianticlabs/airplanes/blob/main/README.md) to download and extract ScanNetV2 scenes. The extacted data format should be like:
